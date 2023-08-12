@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Flower Prediction</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        img {
+            max-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Iris Flower Prediction</h1>
+        <form id="prediction-form">
+            <div class="form-group">
+                <label for="sepalLength">Sepal Length:</label>
+                <input type="number" step="0.1" class="form-control" id="sepalLength" required>
+            </div>
+            <div class="form-group">
+                <label for="sepalWidth">Sepal Width:</label>
+                <input type="number" step="0.1" class="form-control" id="sepalWidth" required>
+            </div>
+            <div class="form-group">
+                <label for="petalLength">Petal Length:</label>
+                <input type="number" step="0.1" class="form-control" id="petalLength" required>
+            </div>
+            <div class="form-group">
+                <label for="petalWidth">Petal Width:</label>
+                <input type="number" step="0.1" class="form-control" id="petalWidth" required>
+            </div>
+            <div class="form-group" method="post">
+                <label for="model">Select Model:</label>
+                <select class="form-control" id="model" required>
+                    <option value="DecisionTreeClassifier">Decision Tree</option>
+                    <option value="GaussianNB">Naive Bayes</option>
+                    <option value="LogisticRegression">Logistic Regression</option>
+                    <option value="SVC">SVM</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Predict</button>
+        </form>
+        <div class="result mt-4 text-center" style="display: none;">
+            <h3 class="result-msg"></h3>
+            <img class="result-img" src="" alt="Predicted Flower">
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('prediction-form');
+        const resultDiv = document.querySelector('.result');
+        const resultMsg = document.querySelector('.result-msg');
+        const resultImg = document.querySelector('.result-img');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const sepalLength = parseFloat(document.getElementById('sepalLength').value);
+            const sepalWidth = parseFloat(document.getElementById('sepalWidth').value);
+            const petalLength = parseFloat(document.getElementById('petalLength').value);
+            const petalWidth = parseFloat(document.getElementById('petalWidth').value);
+            const model = document.getElementById('model').value;
+
+            const predictionData = {
+                sepal_length: sepalLength,
+                sepal_width: sepalWidth,
+                petal_length: petalLength,
+                petal_width: petalWidth,
+                model: model
+            };
+            console.log(predictionData);
+            const response = await fetch('/prediction/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(predictionData),
+            });
+            console.log(response);
+            if (response.ok) {
+                const result = await response.json();
+                resultMsg.textContent = result.msg;
+                resultImg.src = result.img;
+                resultDiv.style.display = 'block';
+            } else {
+                alert('Prediction failed. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
